@@ -57,7 +57,7 @@
 #define DISPLAY_RW_READ  1
 
 #define DISPLAY_ADDRESS 78
-#define DISPLAY_PIN_A_PCF8574 3
+#define DISPLAY_PIN_A 3
 
 #define DISPLAY_PIN_RS  4
 #define DISPLAY_PIN_RW  5
@@ -147,6 +147,7 @@ void display_print_string(char const *str);
 /* USER CODE BEGIN 0 */
 
 void display_set_position(uint8_t pos_x, uint8_t pos_y) {
+
 	switch (pos_y) {
 		case 0:
 			display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_SET_DDRAM_ADDR
@@ -172,7 +173,7 @@ void display_print_string(char const *str) {
 
 void display_init() {
 
-	display_pin_write( DISPLAY_PIN_A_PCF8574, 1);
+	display_pin_write( DISPLAY_PIN_A, 1);
 
 	initial_eigth_bit_communication_is_completed = 0;
 
@@ -281,7 +282,7 @@ void display_pin_write(uint8_t pin_name, uint8_t value) {
 		case DISPLAY_PIN_RW:
 			display_connector.displayPin_RW = value;
 			break;
-		case DISPLAY_PIN_A_PCF8574:
+		case DISPLAY_PIN_A:
 			display_connector.displayPin_A = value;
 			break;
 		default:
@@ -344,6 +345,21 @@ int main(void) {
 	MX_USB_OTG_FS_PCD_Init();
 	MX_I2C1_Init();
 	/* USER CODE BEGIN 2 */
+
+	//
+	// inicializacion del display
+	//
+	display_init();
+
+	//
+	// seteando l posicion 0,0 en el display
+	//
+	display_set_position(0, 0);
+
+	//
+	//
+	//
+	display_print_string("prueba");
 
 	/* USER CODE END 2 */
 
