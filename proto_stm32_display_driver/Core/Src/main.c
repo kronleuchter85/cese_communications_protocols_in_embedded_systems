@@ -138,7 +138,8 @@ static void MX_I2C1_Init(void);
 void display_pin_write(uint8_t pin_name, uint8_t value);
 void display_data_bus_write(uint8_t data_bus);
 void display_code_write(uint8_t type, uint8_t dataBus);
-
+void display_init();
+void displayStringWrite(char const *str);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
