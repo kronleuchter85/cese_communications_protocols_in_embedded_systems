@@ -20,6 +20,42 @@
 #include "main.h"
 #include "string.h"
 
+#define DISPLAY_IR_CLEAR_DISPLAY   0b00000001
+#define DISPLAY_IR_ENTRY_MODE_SET  0b00000100
+#define DISPLAY_IR_DISPLAY_CONTROL 0b00001000
+#define DISPLAY_IR_FUNCTION_SET    0b00100000
+#define DISPLAY_IR_SET_DDRAM_ADDR  0b10000000
+
+#define DISPLAY_IR_ENTRY_MODE_SET_INCREMENT 0b00000010
+#define DISPLAY_IR_ENTRY_MODE_SET_DECREMENT 0b00000000
+#define DISPLAY_IR_ENTRY_MODE_SET_SHIFT     0b00000001
+#define DISPLAY_IR_ENTRY_MODE_SET_NO_SHIFT  0b00000000
+
+#define DISPLAY_IR_DISPLAY_CONTROL_DISPLAY_ON  0b00000100
+#define DISPLAY_IR_DISPLAY_CONTROL_DISPLAY_OFF 0b00000000
+#define DISPLAY_IR_DISPLAY_CONTROL_CURSOR_ON   0b00000010
+#define DISPLAY_IR_DISPLAY_CONTROL_CURSOR_OFF  0b00000000
+#define DISPLAY_IR_DISPLAY_CONTROL_BLINK_ON    0b00000001
+#define DISPLAY_IR_DISPLAY_CONTROL_BLINK_OFF   0b00000000
+
+#define DISPLAY_IR_FUNCTION_SET_8BITS    0b00010000
+#define DISPLAY_IR_FUNCTION_SET_4BITS    0b00000000
+#define DISPLAY_IR_FUNCTION_SET_2LINES   0b00001000
+#define DISPLAY_IR_FUNCTION_SET_1LINE    0b00000000
+#define DISPLAY_IR_FUNCTION_SET_5x10DOTS 0b00000100
+#define DISPLAY_IR_FUNCTION_SET_5x8DOTS  0b00000000
+
+#define DISPLAY_20x4_LINE1_FIRST_CHARACTER_ADDRESS 0
+#define DISPLAY_20x4_LINE2_FIRST_CHARACTER_ADDRESS 64
+#define DISPLAY_20x4_LINE3_FIRST_CHARACTER_ADDRESS 20
+#define DISPLAY_20x4_LINE4_FIRST_CHARACTER_ADDRESS 84
+
+#define DISPLAY_RS_INSTRUCTION 0
+#define DISPLAY_RS_DATA        1
+
+#define DISPLAY_RW_WRITE 0
+#define DISPLAY_RW_READ  1
+
 #define DISPLAY_ADDRESS 78
 #define DISPLAY_PIN_A_PCF8574 3
 
@@ -101,11 +137,22 @@ static void MX_I2C1_Init(void);
 
 void display_pin_write(uint8_t pin_name, uint8_t value);
 void display_data_bus_write(uint8_t data_bus);
+void display_code_write(uint8_t type, uint8_t dataBus);
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+void display_code_write(uint8_t type, uint8_t dataBus) {
+	if (type == DISPLAY_RS_INSTRUCTION) {
+		display_pin_write( DISPLAY_PIN_RS, DISPLAY_RS_INSTRUCTION);
+	} else {
+		display_pin_write( DISPLAY_PIN_RS, DISPLAY_RS_DATA);
+	}
+	display_pin_write( DISPLAY_PIN_RW, DISPLAY_RW_WRITE);
+	display_data_bus_write(dataBus);
+}
 
 void display_data_bus_write(uint8_t data_bus) {
 
