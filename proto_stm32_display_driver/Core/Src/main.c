@@ -77,13 +77,14 @@ ETH_HandleTypeDef heth;
 
 I2C_HandleTypeDef hi2c1;
 
-display_t display_connector;
-
 UART_HandleTypeDef huart3;
 
 PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 /* USER CODE BEGIN PV */
+
+display_t display_connector;
+uint8_t initial_eigth_bit_communication_is_completed = 0;
 
 /* USER CODE END PV */
 
@@ -98,10 +99,42 @@ static void MX_I2C1_Init(void);
 
 /* USER CODE BEGIN PFP */
 
+void display_pin_write(uint8_t pin_name, uint8_t value);
+void display_data_bus_write(uint8_t data_bus);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+void display_data_bus_write(uint8_t data_bus) {
+
+	display_pin_write( DISPLAY_PIN_EN, 0);
+
+	display_pin_write( DISPLAY_PIN_D7, data_bus & 0b10000000);
+	display_pin_write( DISPLAY_PIN_D6, data_bus & 0b01000000);
+	display_pin_write( DISPLAY_PIN_D5, data_bus & 0b00100000);
+	display_pin_write( DISPLAY_PIN_D4, data_bus & 0b00010000);
+
+	if (initial_eigth_bit_communication_is_completed) {
+
+		display_pin_write( DISPLAY_PIN_EN, 1);
+
+		HAL_Delay(1);
+
+		display_pin_write( DISPLAY_PIN_EN, 0);
+		HAL_Delay(1);
+		display_pin_write( DISPLAY_PIN_D7, data_bus & 0b00001000);
+		display_pin_write( DISPLAY_PIN_D6, data_bus & 0b00000100);
+		display_pin_write( DISPLAY_PIN_D5, data_bus & 0b00000010);
+		display_pin_write( DISPLAY_PIN_D4, data_bus & 0b00000001);
+	}
+
+	display_pin_write( DISPLAY_PIN_EN, 1);
+	HAL_Delay(1);
+	display_pin_write( DISPLAY_PIN_EN, 0);
+	HAL_Delay(1);
+}
 
 void display_pin_write(uint8_t pin_name, uint8_t value) {
 
