@@ -144,7 +144,62 @@ void display_code_write(uint8_t type, uint8_t dataBus);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+void displayStringWrite(char const *str) {
+
+	while (*str) {
+		display_code_write(DISPLAY_RS_DATA, *str++);
+	}
+}
+
+void display_init() {
+
+	display_pin_write( DISPLAY_PIN_A_PCF8574, 1);
+
+	initial_eigth_bit_communication_is_completed = 0;
+
+	HAL_Delay(50);
+
+	display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_8BITS);
+	HAL_Delay(5);
+
+	display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_8BITS);
+	HAL_Delay(1);
+
+	display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_8BITS);
+	HAL_Delay(1);
+
+	display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_4BITS);
+	HAL_Delay(1);
+
+	initial_eigth_bit_communication_is_completed = 1;
+
+	display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_4BITS
+			| DISPLAY_IR_FUNCTION_SET_2LINES | DISPLAY_IR_FUNCTION_SET_5x8DOTS);
+	HAL_Delay(1);
+
+	display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_DISPLAY_CONTROL
+			| DISPLAY_IR_DISPLAY_CONTROL_DISPLAY_OFF
+			| DISPLAY_IR_DISPLAY_CONTROL_CURSOR_OFF
+			| DISPLAY_IR_DISPLAY_CONTROL_BLINK_OFF);
+	HAL_Delay(1);
+
+	display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_CLEAR_DISPLAY);
+	HAL_Delay(1);
+
+	display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_ENTRY_MODE_SET
+			| DISPLAY_IR_ENTRY_MODE_SET_INCREMENT
+			| DISPLAY_IR_ENTRY_MODE_SET_NO_SHIFT);
+	HAL_Delay(1);
+
+	display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_DISPLAY_CONTROL
+			| DISPLAY_IR_DISPLAY_CONTROL_DISPLAY_ON
+			| DISPLAY_IR_DISPLAY_CONTROL_CURSOR_OFF
+			| DISPLAY_IR_DISPLAY_CONTROL_BLINK_OFF);
+	HAL_Delay(1);
+}
+
 void display_code_write(uint8_t type, uint8_t dataBus) {
+
 	if (type == DISPLAY_RS_INSTRUCTION) {
 		display_pin_write( DISPLAY_PIN_RS, DISPLAY_RS_INSTRUCTION);
 	} else {
