@@ -139,13 +139,31 @@ void display_pin_write(uint8_t pin_name, uint8_t value);
 void display_data_bus_write(uint8_t data_bus);
 void display_code_write(uint8_t type, uint8_t dataBus);
 void display_init();
-void displayStringWrite(char const *str);
+void display_print_string(char const *str);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-void displayStringWrite(char const *str) {
+void display_set_position(uint8_t pos_x, uint8_t pos_y) {
+	switch (pos_y) {
+		case 0:
+			display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_SET_DDRAM_ADDR
+					| ( DISPLAY_20x4_LINE1_FIRST_CHARACTER_ADDRESS + pos_x));
+			HAL_Delay(1);
+			break;
+
+		case 1:
+			display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_SET_DDRAM_ADDR
+					| ( DISPLAY_20x4_LINE2_FIRST_CHARACTER_ADDRESS + pos_x));
+			HAL_Delay(1);
+			break;
+
+	}
+}
+
+void display_print_string(char const *str) {
 
 	while (*str) {
 		display_code_write(DISPLAY_RS_DATA, *str++);
