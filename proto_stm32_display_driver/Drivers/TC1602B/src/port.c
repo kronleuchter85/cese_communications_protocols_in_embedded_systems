@@ -7,7 +7,7 @@
 
 #include "port.h"
 
-I2C_HandleTypeDef *hi2c1;
+I2C_HandleTypeDef *i2c_handler;
 display_t display_connector;
 uint8_t initial_eigth_bit_communication_is_completed = 0;
 
@@ -17,7 +17,7 @@ uint8_t display_port_ready() {
 
 void display_port_init(I2C_HandleTypeDef *h) {
 
-	hi2c1 = h;
+	i2c_handler = h;
 
 	display_connector.address = DISPLAY_ADDRESS;
 	display_connector.data = 0b00000000;
@@ -158,6 +158,6 @@ void display_port_pin_write(uint8_t pin_name, uint8_t value) {
 	if (display_connector.displayPin_D7)
 		display_connector.data |= 0b10000000;
 
-	HAL_I2C_Master_Transmit(hi2c1, display_connector.address, &display_connector.data, 1, 100);
+	HAL_I2C_Master_Transmit(i2c_handler, display_connector.address, &display_connector.data, 1, 100);
 
 }
