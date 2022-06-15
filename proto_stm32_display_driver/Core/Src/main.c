@@ -17,6 +17,20 @@
  */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+
+/* USER CODE END Includes */
+
+/* Private typedef -----------------------------------------------------------*/
+/* USER CODE BEGIN PTD */
+
+/* USER CODE END PTD */
+
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
+
 #include "main.h"
 #include "string.h"
 
@@ -57,7 +71,7 @@
 #define DISPLAY_RW_READ  1
 
 #define DISPLAY_ADDRESS 78
-#define DISPLAY_PIN_A 3
+#define DISPLAY_PIN_A_BACKLIGHT 3
 
 #define DISPLAY_PIN_RS  4
 #define DISPLAY_PIN_RW  5
@@ -84,18 +98,6 @@ typedef struct {
 	uint8_t displayPin_D7;
 } display_t;
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
-
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -125,14 +127,12 @@ uint8_t initial_eigth_bit_communication_is_completed = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
-
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_ETH_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_USB_OTG_FS_PCD_Init(void);
 static void MX_I2C1_Init(void);
-
 /* USER CODE BEGIN PFP */
 
 void display_pin_write(uint8_t pin_name, uint8_t value);
@@ -150,14 +150,14 @@ void display_set_position(uint8_t pos_x, uint8_t pos_y) {
 
 	switch (pos_y) {
 		case 0:
-			display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_SET_DDRAM_ADDR
-					| ( DISPLAY_20x4_LINE1_FIRST_CHARACTER_ADDRESS + pos_x));
+			display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_SET_DDRAM_ADDR
+					| (DISPLAY_20x4_LINE1_FIRST_CHARACTER_ADDRESS + pos_x));
 			HAL_Delay(1);
 			break;
 
 		case 1:
-			display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_SET_DDRAM_ADDR
-					| ( DISPLAY_20x4_LINE2_FIRST_CHARACTER_ADDRESS + pos_x));
+			display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_SET_DDRAM_ADDR
+					| (DISPLAY_20x4_LINE2_FIRST_CHARACTER_ADDRESS + pos_x));
 			HAL_Delay(1);
 			break;
 
@@ -173,88 +173,92 @@ void display_print_string(char const *str) {
 
 void display_init() {
 
-	display_pin_write( DISPLAY_PIN_A, 1);
+	display_connector.address = DISPLAY_ADDRESS;
+	display_connector.data = 0b00000000;
+
+	display_pin_write(DISPLAY_PIN_A_BACKLIGHT, 1);
 
 	initial_eigth_bit_communication_is_completed = 0;
 
 	HAL_Delay(50);
 
-	display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_8BITS);
+	display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_8BITS);
 	HAL_Delay(5);
 
-	display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_8BITS);
+	display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_8BITS);
 	HAL_Delay(1);
 
-	display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_8BITS);
+	display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_8BITS);
 	HAL_Delay(1);
 
-	display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_4BITS);
+	display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_4BITS);
 	HAL_Delay(1);
 
 	initial_eigth_bit_communication_is_completed = 1;
 
-	display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_4BITS
+	display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_4BITS
 			| DISPLAY_IR_FUNCTION_SET_2LINES | DISPLAY_IR_FUNCTION_SET_5x8DOTS);
 	HAL_Delay(1);
 
-	display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_DISPLAY_CONTROL
+	display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_DISPLAY_CONTROL
 			| DISPLAY_IR_DISPLAY_CONTROL_DISPLAY_OFF
 			| DISPLAY_IR_DISPLAY_CONTROL_CURSOR_OFF
 			| DISPLAY_IR_DISPLAY_CONTROL_BLINK_OFF);
 	HAL_Delay(1);
 
-	display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_CLEAR_DISPLAY);
+	display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_CLEAR_DISPLAY);
 	HAL_Delay(1);
 
-	display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_ENTRY_MODE_SET
+	display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_ENTRY_MODE_SET
 			| DISPLAY_IR_ENTRY_MODE_SET_INCREMENT
 			| DISPLAY_IR_ENTRY_MODE_SET_NO_SHIFT);
 	HAL_Delay(1);
 
-	display_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_DISPLAY_CONTROL
+	display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_DISPLAY_CONTROL
 			| DISPLAY_IR_DISPLAY_CONTROL_DISPLAY_ON
 			| DISPLAY_IR_DISPLAY_CONTROL_CURSOR_OFF
 			| DISPLAY_IR_DISPLAY_CONTROL_BLINK_OFF);
 	HAL_Delay(1);
+
 }
 
 void display_code_write(uint8_t type, uint8_t dataBus) {
 
 	if (type == DISPLAY_RS_INSTRUCTION) {
-		display_pin_write( DISPLAY_PIN_RS, DISPLAY_RS_INSTRUCTION);
+		display_pin_write(DISPLAY_PIN_RS, DISPLAY_RS_INSTRUCTION);
 	} else {
-		display_pin_write( DISPLAY_PIN_RS, DISPLAY_RS_DATA);
+		display_pin_write(DISPLAY_PIN_RS, DISPLAY_RS_DATA);
 	}
-	display_pin_write( DISPLAY_PIN_RW, DISPLAY_RW_WRITE);
+	display_pin_write(DISPLAY_PIN_RW, DISPLAY_RW_WRITE);
 	display_data_bus_write(dataBus);
 }
 
 void display_data_bus_write(uint8_t data_bus) {
 
-	display_pin_write( DISPLAY_PIN_EN, 0);
+	display_pin_write(DISPLAY_PIN_EN, 0);
 
-	display_pin_write( DISPLAY_PIN_D7, data_bus & 0b10000000);
-	display_pin_write( DISPLAY_PIN_D6, data_bus & 0b01000000);
-	display_pin_write( DISPLAY_PIN_D5, data_bus & 0b00100000);
-	display_pin_write( DISPLAY_PIN_D4, data_bus & 0b00010000);
+	display_pin_write(DISPLAY_PIN_D7, data_bus & 0b10000000);
+	display_pin_write(DISPLAY_PIN_D6, data_bus & 0b01000000);
+	display_pin_write(DISPLAY_PIN_D5, data_bus & 0b00100000);
+	display_pin_write(DISPLAY_PIN_D4, data_bus & 0b00010000);
 
 	if (initial_eigth_bit_communication_is_completed) {
 
-		display_pin_write( DISPLAY_PIN_EN, 1);
+		display_pin_write(DISPLAY_PIN_EN, 1);
 
 		HAL_Delay(1);
 
-		display_pin_write( DISPLAY_PIN_EN, 0);
+		display_pin_write(DISPLAY_PIN_EN, 0);
 		HAL_Delay(1);
-		display_pin_write( DISPLAY_PIN_D7, data_bus & 0b00001000);
-		display_pin_write( DISPLAY_PIN_D6, data_bus & 0b00000100);
-		display_pin_write( DISPLAY_PIN_D5, data_bus & 0b00000010);
-		display_pin_write( DISPLAY_PIN_D4, data_bus & 0b00000001);
+		display_pin_write(DISPLAY_PIN_D7, data_bus & 0b00001000);
+		display_pin_write(DISPLAY_PIN_D6, data_bus & 0b00000100);
+		display_pin_write(DISPLAY_PIN_D5, data_bus & 0b00000010);
+		display_pin_write(DISPLAY_PIN_D4, data_bus & 0b00000001);
 	}
 
-	display_pin_write( DISPLAY_PIN_EN, 1);
+	display_pin_write(DISPLAY_PIN_EN, 1);
 	HAL_Delay(1);
-	display_pin_write( DISPLAY_PIN_EN, 0);
+	display_pin_write(DISPLAY_PIN_EN, 0);
 	HAL_Delay(1);
 }
 
@@ -282,7 +286,7 @@ void display_pin_write(uint8_t pin_name, uint8_t value) {
 		case DISPLAY_PIN_RW:
 			display_connector.displayPin_RW = value;
 			break;
-		case DISPLAY_PIN_A:
+		case DISPLAY_PIN_A_BACKLIGHT:
 			display_connector.displayPin_A = value;
 			break;
 		default:
@@ -317,7 +321,8 @@ void display_pin_write(uint8_t pin_name, uint8_t value) {
  * @brief  The application entry point.
  * @retval int
  */
-int main(void) {
+int main(void)
+{
 	/* USER CODE BEGIN 1 */
 
 	/* USER CODE END 1 */
@@ -377,7 +382,8 @@ int main(void) {
  * @brief System Clock Configuration
  * @retval None
  */
-void SystemClock_Config(void) {
+void SystemClock_Config(void)
+{
 	RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
 	RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
@@ -397,19 +403,22 @@ void SystemClock_Config(void) {
 	RCC_OscInitStruct.PLL.PLLN = 168;
 	RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
 	RCC_OscInitStruct.PLL.PLLQ = 7;
-	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+			{
 		Error_Handler();
 	}
 
 	/** Initializes the CPU, AHB and APB buses clocks
 	 */
-	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+			| RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
 	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
 	RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
 	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
 	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK) {
+	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
+			{
 		Error_Handler();
 	}
 }
@@ -419,7 +428,8 @@ void SystemClock_Config(void) {
  * @param None
  * @retval None
  */
-static void MX_ETH_Init(void) {
+static void MX_ETH_Init(void)
+{
 
 	/* USER CODE BEGIN ETH_Init 0 */
 
@@ -447,7 +457,8 @@ static void MX_ETH_Init(void) {
 
 	/* USER CODE END MACADDRESS */
 
-	if (HAL_ETH_Init(&heth) != HAL_OK) {
+	if (HAL_ETH_Init(&heth) != HAL_OK)
+			{
 		Error_Handler();
 	}
 
@@ -466,7 +477,8 @@ static void MX_ETH_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_I2C1_Init(void) {
+static void MX_I2C1_Init(void)
+{
 
 	/* USER CODE BEGIN I2C1_Init 0 */
 
@@ -484,19 +496,22 @@ static void MX_I2C1_Init(void) {
 	hi2c1.Init.OwnAddress2 = 0;
 	hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
 	hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-	if (HAL_I2C_Init(&hi2c1) != HAL_OK) {
+	if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+			{
 		Error_Handler();
 	}
 
 	/** Configure Analogue filter
 	 */
-	if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK) {
+	if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+			{
 		Error_Handler();
 	}
 
 	/** Configure Digital filter
 	 */
-	if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK) {
+	if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
+			{
 		Error_Handler();
 	}
 	/* USER CODE BEGIN I2C1_Init 2 */
@@ -510,7 +525,8 @@ static void MX_I2C1_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_USART3_UART_Init(void) {
+static void MX_USART3_UART_Init(void)
+{
 
 	/* USER CODE BEGIN USART3_Init 0 */
 
@@ -527,7 +543,8 @@ static void MX_USART3_UART_Init(void) {
 	huart3.Init.Mode = UART_MODE_TX_RX;
 	huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
 	huart3.Init.OverSampling = UART_OVERSAMPLING_16;
-	if (HAL_UART_Init(&huart3) != HAL_OK) {
+	if (HAL_UART_Init(&huart3) != HAL_OK)
+			{
 		Error_Handler();
 	}
 	/* USER CODE BEGIN USART3_Init 2 */
@@ -541,7 +558,8 @@ static void MX_USART3_UART_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_USB_OTG_FS_PCD_Init(void) {
+static void MX_USB_OTG_FS_PCD_Init(void)
+{
 
 	/* USER CODE BEGIN USB_OTG_FS_Init 0 */
 
@@ -560,7 +578,8 @@ static void MX_USB_OTG_FS_PCD_Init(void) {
 	hpcd_USB_OTG_FS.Init.lpm_enable = DISABLE;
 	hpcd_USB_OTG_FS.Init.vbus_sensing_enable = ENABLE;
 	hpcd_USB_OTG_FS.Init.use_dedicated_ep1 = DISABLE;
-	if (HAL_PCD_Init(&hpcd_USB_OTG_FS) != HAL_OK) {
+	if (HAL_PCD_Init(&hpcd_USB_OTG_FS) != HAL_OK)
+			{
 		Error_Handler();
 	}
 	/* USER CODE BEGIN USB_OTG_FS_Init 2 */
@@ -574,7 +593,8 @@ static void MX_USB_OTG_FS_PCD_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_GPIO_Init(void) {
+static void MX_GPIO_Init(void)
+{
 	GPIO_InitTypeDef GPIO_InitStruct = { 0 };
 
 	/* GPIO Ports Clock Enable */
@@ -627,7 +647,8 @@ static void MX_GPIO_Init(void) {
  * @brief  This function is executed in case of error occurrence.
  * @retval None
  */
-void Error_Handler(void) {
+void Error_Handler(void)
+{
 	/* USER CODE BEGIN Error_Handler_Debug */
 	/* User can add his own implementation to report the HAL error return state */
 	__disable_irq();
