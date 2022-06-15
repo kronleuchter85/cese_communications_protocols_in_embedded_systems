@@ -11,12 +11,27 @@ I2C_HandleTypeDef *i2c_handler;
 display_t display_connector;
 uint8_t initial_eigth_bit_communication_is_completed = 0;
 
+void display_port_clean() {
+	display_port_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_CLEAR_DISPLAY);
+}
+
 void display_port_light_set(uint8_t s) {
 	display_port_pin_write(DISPLAY_PIN_A_BACKLIGHT, s);
 }
 
-uint8_t display_port_ready() {
+bool display_port_ready() {
 	return initial_eigth_bit_communication_is_completed;
+}
+
+void display_port_enable_screen(bool enable) {
+
+	if (enable) {
+		display_port_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_DISPLAY_CONTROL
+				| DISPLAY_IR_DISPLAY_CONTROL_DISPLAY_ON);
+	} else {
+		display_port_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_DISPLAY_CONTROL
+				| DISPLAY_IR_DISPLAY_CONTROL_DISPLAY_OFF);
+	}
 }
 
 void display_port_init(I2C_HandleTypeDef *h) {
@@ -33,33 +48,31 @@ void display_port_init(I2C_HandleTypeDef *h) {
 
 	HAL_Delay(50);
 
-//	display_port_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_8BITS);
-//	HAL_Delay(5);
-//
-//	display_port_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_8BITS);
-//	HAL_Delay(1);
-//
-//	display_port_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_8BITS);
-//	HAL_Delay(1);
-//
-//	display_port_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_4BITS);
-//	HAL_Delay(1);
-
 	initial_eigth_bit_communication_is_completed = 1;
 
-//	display_port_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_4BITS
-//			| DISPLAY_IR_FUNCTION_SET_2LINES | DISPLAY_IR_FUNCTION_SET_5x8DOTS);
-//	HAL_Delay(1);
+	//
+	// Control:
+	// - desactivar blinking
+	// - desactivar cursor off
+	// - desactivar display off
+	//
+	display_port_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_DISPLAY_CONTROL
+			| DISPLAY_IR_DISPLAY_CONTROL_DISPLAY_OFF
+			| DISPLAY_IR_DISPLAY_CONTROL_CURSOR_OFF
+			| DISPLAY_IR_DISPLAY_CONTROL_BLINK_OFF);
+	HAL_Delay(1);
 
-//	display_port_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_DISPLAY_CONTROL
-//			| DISPLAY_IR_DISPLAY_CONTROL_DISPLAY_OFF
-//			| DISPLAY_IR_DISPLAY_CONTROL_CURSOR_OFF
-//			| DISPLAY_IR_DISPLAY_CONTROL_BLINK_OFF);
-//	HAL_Delay(1);
-
+	//
+	// limpiar display
+	//
 	display_port_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_CLEAR_DISPLAY);
 	HAL_Delay(1);
 
+	//
+	// entry mode
+	// - increment
+	// - no-shift
+	//
 	display_port_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_ENTRY_MODE_SET
 			| DISPLAY_IR_ENTRY_MODE_SET_INCREMENT
 			| DISPLAY_IR_ENTRY_MODE_SET_NO_SHIFT);

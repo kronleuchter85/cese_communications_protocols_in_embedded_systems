@@ -34,6 +34,8 @@
 #include "main.h"
 #include "string.h"
 
+#include "tests.h"
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -109,41 +111,31 @@ int main(void)
 	MX_I2C1_Init();
 	/* USER CODE BEGIN 2 */
 
-	//
-	// inicializacion del display
-	//
-	display_init(&hi2c1);
-
-	//
-	// seteando l posicion 0,0 en el display
-	//
-	display_set_position(0, 0);
-
-	//
-	// imprimiendo un mensaje de prueba
-	//
-	display_print_string("prueba2");
-
-	display_light_off();
-
-	//
-	// seteando l posicion 0,0 en el display
-	//
-	display_set_position(0, 1);
-
-	display_light_on();
-
-	//
-	// imprimiendo un mensaje de prueba
-	//
-	display_print_string("prueba3");
-
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	while (1) {
 		/* USER CODE END WHILE */
+
+		test_initialize();
+
+		test_print_text();
+		HAL_Delay(1000);
+		test_set_lights();
+		HAL_Delay(1000);
+
+		test_set_cursor_mode_blinking();
+		HAL_Delay(1000);
+
+		test_set_cursor_mode_static();
+		HAL_Delay(1000);
+
+		test_set_cursor_mode_none();
+		HAL_Delay(1000);
+
+		test_disable_enable_screen();
+		test_clear_screen();
 
 		/* USER CODE BEGIN 3 */
 	}
