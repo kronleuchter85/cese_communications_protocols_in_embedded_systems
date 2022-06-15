@@ -34,70 +34,6 @@
 #include "main.h"
 #include "string.h"
 
-#define DISPLAY_IR_CLEAR_DISPLAY   0b00000001
-#define DISPLAY_IR_ENTRY_MODE_SET  0b00000100
-#define DISPLAY_IR_DISPLAY_CONTROL 0b00001000
-#define DISPLAY_IR_FUNCTION_SET    0b00100000
-#define DISPLAY_IR_SET_DDRAM_ADDR  0b10000000
-
-#define DISPLAY_IR_ENTRY_MODE_SET_INCREMENT 0b00000010
-#define DISPLAY_IR_ENTRY_MODE_SET_DECREMENT 0b00000000
-#define DISPLAY_IR_ENTRY_MODE_SET_SHIFT     0b00000001
-#define DISPLAY_IR_ENTRY_MODE_SET_NO_SHIFT  0b00000000
-
-#define DISPLAY_IR_DISPLAY_CONTROL_DISPLAY_ON  0b00000100
-#define DISPLAY_IR_DISPLAY_CONTROL_DISPLAY_OFF 0b00000000
-#define DISPLAY_IR_DISPLAY_CONTROL_CURSOR_ON   0b00000010
-#define DISPLAY_IR_DISPLAY_CONTROL_CURSOR_OFF  0b00000000
-#define DISPLAY_IR_DISPLAY_CONTROL_BLINK_ON    0b00000001
-#define DISPLAY_IR_DISPLAY_CONTROL_BLINK_OFF   0b00000000
-
-#define DISPLAY_IR_FUNCTION_SET_8BITS    0b00010000
-#define DISPLAY_IR_FUNCTION_SET_4BITS    0b00000000
-#define DISPLAY_IR_FUNCTION_SET_2LINES   0b00001000
-#define DISPLAY_IR_FUNCTION_SET_1LINE    0b00000000
-#define DISPLAY_IR_FUNCTION_SET_5x10DOTS 0b00000100
-#define DISPLAY_IR_FUNCTION_SET_5x8DOTS  0b00000000
-
-#define DISPLAY_20x4_LINE1_FIRST_CHARACTER_ADDRESS 0
-#define DISPLAY_20x4_LINE2_FIRST_CHARACTER_ADDRESS 64
-#define DISPLAY_20x4_LINE3_FIRST_CHARACTER_ADDRESS 20
-#define DISPLAY_20x4_LINE4_FIRST_CHARACTER_ADDRESS 84
-
-#define DISPLAY_RS_INSTRUCTION 0
-#define DISPLAY_RS_DATA        1
-
-#define DISPLAY_RW_WRITE 0
-#define DISPLAY_RW_READ  1
-
-#define DISPLAY_ADDRESS 78
-#define DISPLAY_PIN_A_BACKLIGHT 3
-
-#define DISPLAY_PIN_RS  4
-#define DISPLAY_PIN_RW  5
-#define DISPLAY_PIN_EN  6
-#define DISPLAY_PIN_D0  7
-#define DISPLAY_PIN_D1  8
-#define DISPLAY_PIN_D2  9
-#define DISPLAY_PIN_D3 10
-#define DISPLAY_PIN_D4 11
-#define DISPLAY_PIN_D5 12
-#define DISPLAY_PIN_D6 13
-#define DISPLAY_PIN_D7 14
-
-typedef struct {
-	uint8_t address;
-	uint8_t data;
-	uint8_t displayPin_RS;
-	uint8_t displayPin_RW;
-	uint8_t displayPin_EN;
-	uint8_t displayPin_A;
-	uint8_t displayPin_D4;
-	uint8_t displayPin_D5;
-	uint8_t displayPin_D6;
-	uint8_t displayPin_D7;
-} display_t;
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -121,9 +57,6 @@ PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 /* USER CODE BEGIN PV */
 
-display_t display_connector;
-uint8_t initial_eigth_bit_communication_is_completed = 0;
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -135,186 +68,11 @@ static void MX_USB_OTG_FS_PCD_Init(void);
 static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
 
-void display_pin_write(uint8_t pin_name, uint8_t value);
-void display_data_bus_write(uint8_t data_bus);
-void display_code_write(uint8_t type, uint8_t dataBus);
-void display_init();
-void display_print_string(char const *str);
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-void display_set_position(uint8_t pos_x, uint8_t pos_y) {
-
-	switch (pos_y) {
-		case 0:
-			display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_SET_DDRAM_ADDR
-					| (DISPLAY_20x4_LINE1_FIRST_CHARACTER_ADDRESS + pos_x));
-			HAL_Delay(1);
-			break;
-
-		case 1:
-			display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_SET_DDRAM_ADDR
-					| (DISPLAY_20x4_LINE2_FIRST_CHARACTER_ADDRESS + pos_x));
-			HAL_Delay(1);
-			break;
-
-	}
-}
-
-void display_print_string(char const *str) {
-
-	while (*str) {
-		display_code_write(DISPLAY_RS_DATA, *str++);
-	}
-}
-
-void display_init() {
-
-	display_connector.address = DISPLAY_ADDRESS;
-	display_connector.data = 0b00000000;
-
-	display_pin_write(DISPLAY_PIN_A_BACKLIGHT, 1);
-
-	initial_eigth_bit_communication_is_completed = 0;
-
-	HAL_Delay(50);
-
-	display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_8BITS);
-	HAL_Delay(5);
-
-	display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_8BITS);
-	HAL_Delay(1);
-
-	display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_8BITS);
-	HAL_Delay(1);
-
-	display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_4BITS);
-	HAL_Delay(1);
-
-	initial_eigth_bit_communication_is_completed = 1;
-
-	display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET | DISPLAY_IR_FUNCTION_SET_4BITS
-			| DISPLAY_IR_FUNCTION_SET_2LINES | DISPLAY_IR_FUNCTION_SET_5x8DOTS);
-	HAL_Delay(1);
-
-	display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_DISPLAY_CONTROL
-			| DISPLAY_IR_DISPLAY_CONTROL_DISPLAY_OFF
-			| DISPLAY_IR_DISPLAY_CONTROL_CURSOR_OFF
-			| DISPLAY_IR_DISPLAY_CONTROL_BLINK_OFF);
-	HAL_Delay(1);
-
-	display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_CLEAR_DISPLAY);
-	HAL_Delay(1);
-
-	display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_ENTRY_MODE_SET
-			| DISPLAY_IR_ENTRY_MODE_SET_INCREMENT
-			| DISPLAY_IR_ENTRY_MODE_SET_NO_SHIFT);
-	HAL_Delay(1);
-
-	display_code_write(DISPLAY_RS_INSTRUCTION, DISPLAY_IR_DISPLAY_CONTROL
-			| DISPLAY_IR_DISPLAY_CONTROL_DISPLAY_ON
-			| DISPLAY_IR_DISPLAY_CONTROL_CURSOR_OFF
-			| DISPLAY_IR_DISPLAY_CONTROL_BLINK_OFF);
-	HAL_Delay(1);
-
-}
-
-void display_code_write(uint8_t type, uint8_t dataBus) {
-
-	if (type == DISPLAY_RS_INSTRUCTION) {
-		display_pin_write(DISPLAY_PIN_RS, DISPLAY_RS_INSTRUCTION);
-	} else {
-		display_pin_write(DISPLAY_PIN_RS, DISPLAY_RS_DATA);
-	}
-	display_pin_write(DISPLAY_PIN_RW, DISPLAY_RW_WRITE);
-	display_data_bus_write(dataBus);
-}
-
-void display_data_bus_write(uint8_t data_bus) {
-
-	display_pin_write(DISPLAY_PIN_EN, 0);
-
-	display_pin_write(DISPLAY_PIN_D7, data_bus & 0b10000000);
-	display_pin_write(DISPLAY_PIN_D6, data_bus & 0b01000000);
-	display_pin_write(DISPLAY_PIN_D5, data_bus & 0b00100000);
-	display_pin_write(DISPLAY_PIN_D4, data_bus & 0b00010000);
-
-	if (initial_eigth_bit_communication_is_completed) {
-
-		display_pin_write(DISPLAY_PIN_EN, 1);
-
-		HAL_Delay(1);
-
-		display_pin_write(DISPLAY_PIN_EN, 0);
-		HAL_Delay(1);
-		display_pin_write(DISPLAY_PIN_D7, data_bus & 0b00001000);
-		display_pin_write(DISPLAY_PIN_D6, data_bus & 0b00000100);
-		display_pin_write(DISPLAY_PIN_D5, data_bus & 0b00000010);
-		display_pin_write(DISPLAY_PIN_D4, data_bus & 0b00000001);
-	}
-
-	display_pin_write(DISPLAY_PIN_EN, 1);
-	HAL_Delay(1);
-	display_pin_write(DISPLAY_PIN_EN, 0);
-	HAL_Delay(1);
-}
-
-void display_pin_write(uint8_t pin_name, uint8_t value) {
-
-	switch (pin_name) {
-		case DISPLAY_PIN_D4:
-			display_connector.displayPin_D4 = value;
-			break;
-		case DISPLAY_PIN_D5:
-			display_connector.displayPin_D5 = value;
-			break;
-		case DISPLAY_PIN_D6:
-			display_connector.displayPin_D6 = value;
-			break;
-		case DISPLAY_PIN_D7:
-			display_connector.displayPin_D7 = value;
-			break;
-		case DISPLAY_PIN_RS:
-			display_connector.displayPin_RS = value;
-			break;
-		case DISPLAY_PIN_EN:
-			display_connector.displayPin_EN = value;
-			break;
-		case DISPLAY_PIN_RW:
-			display_connector.displayPin_RW = value;
-			break;
-		case DISPLAY_PIN_A_BACKLIGHT:
-			display_connector.displayPin_A = value;
-			break;
-		default:
-			break;
-	}
-
-	display_connector.data = 0b00000000;
-
-	if (display_connector.displayPin_RS)
-		display_connector.data |= 0b00000001;
-	if (display_connector.displayPin_RW)
-		display_connector.data |= 0b00000010;
-	if (display_connector.displayPin_EN)
-		display_connector.data |= 0b00000100;
-	if (display_connector.displayPin_A)
-		display_connector.data |= 0b00001000;
-	if (display_connector.displayPin_D4)
-		display_connector.data |= 0b00010000;
-	if (display_connector.displayPin_D5)
-		display_connector.data |= 0b00100000;
-	if (display_connector.displayPin_D6)
-		display_connector.data |= 0b01000000;
-	if (display_connector.displayPin_D7)
-		display_connector.data |= 0b10000000;
-
-	HAL_I2C_Master_Transmit(&hi2c1, display_connector.address, &display_connector.data, 1, 100);
-
-}
 /* USER CODE END 0 */
 
 /**
@@ -354,18 +112,15 @@ int main(void)
 	//
 	// inicializacion del display
 	//
-	display_init();
-
+	//display_init();
 	//
 	// seteando l posicion 0,0 en el display
 	//
-	display_set_position(0, 0);
-
+	//display_set_position(0, 0);
 	//
 	//
 	//
-	display_print_string("prueba");
-
+	//display_print_string("prueba");
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
