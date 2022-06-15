@@ -81,5 +81,6 @@ void display_port_init(I2C_HandleTypeDef *hi2c1);
 void display_port_pin_write(uint8_t pin_name, uint8_t value);
 void display_port_data_bus_write(uint8_t data_bus);
 void display_port_code_write(uint8_t type, uint8_t dataBus);
+void display_port_light_set(uint8_t s);
 
 #endif /* TC1602B_INC_PORT_H_ */

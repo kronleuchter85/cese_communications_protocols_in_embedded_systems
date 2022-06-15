@@ -11,6 +11,10 @@ I2C_HandleTypeDef *i2c_handler;
 display_t display_connector;
 uint8_t initial_eigth_bit_communication_is_completed = 0;
 
+void display_port_light_set(uint8_t s) {
+	display_port_pin_write(DISPLAY_PIN_A_BACKLIGHT, s);
+}
+
 uint8_t display_port_ready() {
 	return initial_eigth_bit_communication_is_completed;
 }
@@ -22,7 +26,7 @@ void display_port_init(I2C_HandleTypeDef *h) {
 	display_connector.address = DISPLAY_ADDRESS;
 	display_connector.data = 0b00000000;
 
-	display_port_pin_write(DISPLAY_PIN_A_BACKLIGHT, 1);
+	display_port_light_set(1);
 
 	initial_eigth_bit_communication_is_completed = 0;
 

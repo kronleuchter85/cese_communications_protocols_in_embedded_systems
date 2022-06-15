@@ -37,3 +37,9 @@ void display_print_string(char const *str) {
 	}
 }
 
+void display_light_on() {
+	display_port_light_set(1);
+}
+void display_light_off() {
+	display_port_light_set(0);
+}

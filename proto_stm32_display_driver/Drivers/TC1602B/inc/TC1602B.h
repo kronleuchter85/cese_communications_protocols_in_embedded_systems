@@ -10,6 +10,9 @@
 
 #include "port.h"
 
+void display_light_on();
+void display_light_off();
+
 void display_init(I2C_HandleTypeDef *hi2c1);
 void display_print_string(char const *str);
 void display_set_position(uint8_t pos_x, uint8_t pos_y);
