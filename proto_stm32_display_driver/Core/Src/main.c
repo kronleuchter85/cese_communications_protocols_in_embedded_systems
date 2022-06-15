@@ -112,15 +112,18 @@ int main(void)
 	//
 	// inicializacion del display
 	//
-	//display_init();
+	display_init(&hi2c1);
+
 	//
 	// seteando l posicion 0,0 en el display
 	//
-	//display_set_position(0, 0);
+	display_set_position(0, 0);
+
 	//
+	// imprimiendo un mensaje de prueba
 	//
-	//
-	//display_print_string("prueba");
+	display_print_string("prueba2");
+
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
