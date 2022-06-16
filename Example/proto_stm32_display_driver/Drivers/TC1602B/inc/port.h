@@ -79,14 +79,46 @@ typedef struct {
 	uint8_t data;
 } display_t;
 
+/**
+ * permite determinar si la inizialiacion del display
+ * termino y el display esta listo para ser utilizado
+ */
 bool display_port_ready();
+
+/**
+ * permite setear el estado de la backlight
+ */
 void display_port_light_set(uint8_t s);
+
+/**
+ * permite limpiar la pantalla
+ */
 void display_port_clean();
+
+/**
+ * permite habilitar la pantalla
+ */
 void display_port_enable_screen(bool en);
 
+/**
+ * permite inicializar el display pasando la instancia del I2C_HandleTypeDef
+ */
 void display_port_init(I2C_HandleTypeDef *hi2c1);
+
+/**
+ * permite escribir datos a los pines del display indicando el
+ * numero de pin y el valor
+ */
 void display_port_pin_write(uint8_t pin_name, uint8_t value);
+
+/**
+ * permite escribir datos al bus de datos i2c
+ */
 void display_port_data_bus_write(uint8_t data_bus);
+
+/**
+ * permite escribir codigo de operaciones soportados por el display
+ */
 void display_port_code_write(uint8_t type, uint8_t dataBus);
 
 #endif /* TC1602B_INC_PORT_H_ */
