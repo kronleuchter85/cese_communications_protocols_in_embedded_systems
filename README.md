@@ -1,7 +1,7 @@
 
 # Universidad de Buenos Aires - Carrera de Especializacion en sistemas Embebidos
 ##### Asignatura: Arquitectura de Microprocesadores
-##### Alumno: Gonzalo Carreno
+##### Alumno: Gonzalo Carreño
 
 ##### Contenido:
 - [Driver desarrollado](./Driver)
@@ -10,3 +10,5 @@
 	- [Driver - Implementacion alto nivel (TC1602B.C)](./Driver/TC1602B/src/TC1602B.c)
 	- [Port - Implementacion alto nivel (port.c)](./Driver/TC1602B/src/port.c)
 - [Proyecto de Ejemplo STM32](./Example)
+- [Docs](./Docs)
+
