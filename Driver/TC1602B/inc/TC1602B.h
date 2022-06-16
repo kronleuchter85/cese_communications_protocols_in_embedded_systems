@@ -32,15 +32,51 @@ typedef enum {
 
 } display_cursor_mode_t;
 
+/**
+ * Permite activar el display representando por 
+ * pantalla lo que tiene almacenado
+ */
 void display_enable();
+
+/**
+ * Permite desactivar el display sin borrar 
+ * el contenido que tiene almacenado para representar
+ */
 void display_disable();
+
+/**
+ * Permite setear el tipo de cursor a representar
+ */
 void display_set_cursor_mode(display_cursor_mode_t cm);
+
+/**
+ * permite prender la backlight del display
+ */
 void display_light_on();
+/**
+ * permite apagar la backlight del display
+ */
 void display_light_off();
+
+/**
+ * permite limpiar el contenido del displauy
+ */
 void display_clean();
 
+/**
+ * permite inicializar el display
+ */
 void display_init(I2C_HandleTypeDef *hi2c1);
+
+/**
+ * Permite imprimir un mensaje por pantalla del display
+ */
 void display_print_string(char const *str);
+
+/**
+ * permite fijar la posicion en la cual se debe posicionar el cursor 
+ * para comenzar a imprimir
+ */
 void display_set_position(uint8_t pos_x, uint8_t pos_y);
 
 #endif /* TC1602B_INC_TC1602B_H_ */
