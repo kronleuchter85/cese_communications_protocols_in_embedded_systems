@@ -24,10 +24,10 @@ void test_set_lights() {
 	while (time--) {
 
 		display_light_off();
-		HAL_Delay(1000);
+		HAL_Delay(500);
 
 		display_light_on();
-		HAL_Delay(1000);
+		HAL_Delay(500);
 	}
 
 }
@@ -69,6 +69,11 @@ void test_set_cursor_mode_none() {
 
 void test_disable_enable_screen() {
 
+	display_disable();
+
+	HAL_Delay(2000);
+
+	display_enable();
 }
 
 void test_clear_screen() {

@@ -121,18 +121,14 @@ int main(void)
 		test_initialize();
 
 		test_print_text();
-		HAL_Delay(1000);
+
 		test_set_lights();
-		HAL_Delay(1000);
 
 		test_set_cursor_mode_blinking();
-		HAL_Delay(1000);
 
 		test_set_cursor_mode_static();
-		HAL_Delay(1000);
 
 		test_set_cursor_mode_none();
-		HAL_Delay(1000);
 
 		test_disable_enable_screen();
 		test_clear_screen();
