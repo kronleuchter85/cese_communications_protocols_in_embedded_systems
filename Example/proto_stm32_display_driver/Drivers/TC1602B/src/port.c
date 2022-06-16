@@ -48,7 +48,30 @@ void display_port_init(I2C_HandleTypeDef *h) {
 
 	HAL_Delay(50);
 
+	display_port_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET
+			| DISPLAY_IR_FUNCTION_SET_8BITS);
+
+	HAL_Delay(50);
+
+	display_port_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET
+			| DISPLAY_IR_FUNCTION_SET_8BITS);
+	HAL_Delay(50);
+
+	display_port_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET
+			| DISPLAY_IR_FUNCTION_SET_8BITS);
+	HAL_Delay(50);
+
+	display_port_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET
+			| DISPLAY_IR_FUNCTION_SET_4BITS);
+	HAL_Delay(50);
+
 	initial_eigth_bit_communication_is_completed = 1;
+
+	display_port_code_write( DISPLAY_RS_INSTRUCTION, DISPLAY_IR_FUNCTION_SET
+			| DISPLAY_IR_FUNCTION_SET_4BITS
+			| DISPLAY_IR_FUNCTION_SET_2LINES
+			| DISPLAY_IR_FUNCTION_SET_5x8DOTS);
+	HAL_Delay(50);
 
 	//
 	// Control:
@@ -130,28 +153,28 @@ void display_port_pin_write(uint8_t pin_name, uint8_t value) {
 
 	switch (pin_name) {
 		case DISPLAY_PIN_D4:
-			display_connector.displayPin_D4 = value;
+			display_connector.pin_D4 = value;
 			break;
 		case DISPLAY_PIN_D5:
-			display_connector.displayPin_D5 = value;
+			display_connector.pin_D5 = value;
 			break;
 		case DISPLAY_PIN_D6:
-			display_connector.displayPin_D6 = value;
+			display_connector.pin_D6 = value;
 			break;
 		case DISPLAY_PIN_D7:
-			display_connector.displayPin_D7 = value;
+			display_connector.pin_D7 = value;
 			break;
 		case DISPLAY_PIN_RS:
-			display_connector.displayPin_RS = value;
+			display_connector.pin_RS = value;
 			break;
 		case DISPLAY_PIN_EN:
-			display_connector.displayPin_EN = value;
+			display_connector.pin_EN = value;
 			break;
 		case DISPLAY_PIN_RW:
-			display_connector.displayPin_RW = value;
+			display_connector.pin_RW = value;
 			break;
 		case DISPLAY_PIN_A_BACKLIGHT:
-			display_connector.displayPin_A = value;
+			display_connector.pin_A = value;
 			break;
 		default:
 			break;
@@ -159,21 +182,21 @@ void display_port_pin_write(uint8_t pin_name, uint8_t value) {
 
 	display_connector.data = 0b00000000;
 
-	if (display_connector.displayPin_RS)
+	if (display_connector.pin_RS)
 		display_connector.data |= 0b00000001;
-	if (display_connector.displayPin_RW)
+	if (display_connector.pin_RW)
 		display_connector.data |= 0b00000010;
-	if (display_connector.displayPin_EN)
+	if (display_connector.pin_EN)
 		display_connector.data |= 0b00000100;
-	if (display_connector.displayPin_A)
+	if (display_connector.pin_A)
 		display_connector.data |= 0b00001000;
-	if (display_connector.displayPin_D4)
+	if (display_connector.pin_D4)
 		display_connector.data |= 0b00010000;
-	if (display_connector.displayPin_D5)
+	if (display_connector.pin_D5)
 		display_connector.data |= 0b00100000;
-	if (display_connector.displayPin_D6)
+	if (display_connector.pin_D6)
 		display_connector.data |= 0b01000000;
-	if (display_connector.displayPin_D7)
+	if (display_connector.pin_D7)
 		display_connector.data |= 0b10000000;
 
 	HAL_I2C_Master_Transmit(i2c_handler, display_connector.address, &display_connector.data, 1, 100);
